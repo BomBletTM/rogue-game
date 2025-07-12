@@ -49,7 +49,7 @@ project-root/
 ### 1. Клонируйте репозиторий:
 
 ```bash
-git clone https://github.com/ваш-пользователь/rogue-game.git
+git clone https://github.com/BomBletTM/rogue-game.git
 cd rogue-game
 ```
 
