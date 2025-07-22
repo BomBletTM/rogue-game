@@ -20,23 +20,29 @@ Game.prototype.herosAttack = function () {
 };
 
 Game.prototype.enemysAttack = function () {
-  this.enemies.forEach((enemy) => {
-    this.forEachNeighborCell(enemy.x, enemy.y, (ax, ay) => {
-      if (ax === this.hero.x && ay === this.hero.y) {
-        this.hero.health -= 5;
-        if (this.hero.health <= 0) {
-          this.map[this.hero.y][this.hero.x] = "floor";
-          this.hero.isDead = true;
-          this.render();
+  for (var i = 0; i < this.enemies.length; i++) {
+    var enemy = this.enemies[i];
 
-          setTimeout(() => {
-            alert("Вы умерли!");
-            $(document).off("keydown");
-          }, 100);
+    this.forEachNeighborCell(
+      enemy.x,
+      enemy.y,
+      function (ax, ay) {
+        if (ax === this.hero.x && ay === this.hero.y) {
+          this.hero.health -= 5;
+          if (this.hero.health <= 0) {
+            this.map[this.hero.y][this.hero.x] = "floor";
+            this.hero.isDead = true;
+            this.render();
+
+            setTimeout(function () {
+              alert("Вы умерли!");
+              $(document).off("keydown");
+            }, 100);
+          }
         }
-      }
-    });
-  });
+      }.bind(this)
+    );
+  }
 };
 
 Game.prototype.removeEnemy = function (enemy) {

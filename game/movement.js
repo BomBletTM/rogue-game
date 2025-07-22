@@ -33,7 +33,9 @@ Game.prototype.handleKey = function (key) {
 };
 
 Game.prototype.enemiesMove = function () {
-  this.enemies.forEach((enemy) => {
+  for (var i = 0; i < this.enemies.length; i++) {
+    var enemy = this.enemies[i];
+
     var directions = [
       { dx: 0, dy: -1 },
       { dx: 0, dy: 1 },
@@ -41,63 +43,77 @@ Game.prototype.enemiesMove = function () {
       { dx: 1, dy: 0 },
     ];
 
-    var isHeroNear = this.cellsAround.some((cell) => {
+    var isHeroNear = false;
+    for (var j = 0; j < this.cellsAround.length; j++) {
+      var cell = this.cellsAround[j];
       var ax = enemy.x + cell.dx;
       var ay = enemy.y + cell.dy;
-      return ax === this.hero.x && ay === this.hero.y;
-    });
+      if (ax === this.hero.x && ay === this.hero.y) {
+        isHeroNear = true;
+        break;
+      }
+    }
 
     if (isHeroNear) {
       var decision = Math.random();
       if (decision < 0.5) {
-        return;
+        continue;
       } else {
         var currentDist =
           Math.abs(enemy.x - this.hero.x) + Math.abs(enemy.y - this.hero.y);
 
-        var possibleMoves = directions.filter((dir) => {
+        var possibleMoves = [];
+        for (var k = 0; k < directions.length; k++) {
+          var dir = directions[k];
           var newX = enemy.x + dir.dx;
           var newY = enemy.y + dir.dy;
 
           var newDist =
             Math.abs(newX - this.hero.x) + Math.abs(newY - this.hero.y);
 
-          return this.isCellFree(newX, newY, false) && newDist > currentDist;
-        });
+          if (this.isCellFree(newX, newY, false) && newDist > currentDist) {
+            possibleMoves.push(dir);
+          }
+        }
 
         if (possibleMoves.length > 0) {
           var move =
             possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
           enemy.x += move.dx;
           enemy.y += move.dy;
-          return;
-        } else {
-          return;
         }
+
+        continue;
       }
     }
 
     var shuffled = directions.sort(() => Math.random() - 0.5);
-    for (var i = 0; i < shuffled.length; i++) {
-      var dir = shuffled[i];
+    for (var k = 0; k < shuffled.length; k++) {
+      var dir = shuffled[k];
       var newX = enemy.x + dir.dx;
       var newY = enemy.y + dir.dy;
 
-      var isOccupied = this.enemies.some(
-        (e) => e !== enemy && e.x === newX && e.y === newY
-      );
+      var isOccupied = false;
+      for (var m = 0; m < this.enemies.length; m++) {
+        var e = this.enemies[m];
+        if (e !== enemy && e.x === newX && e.y === newY) {
+          isOccupied = true;
+          break;
+        }
+      }
+
       var isHero = this.hero.x === newX && this.hero.y === newY;
 
       if (this.isCellFree(newX, newY, false) && !isHero) {
         var tile = this.map[newY][newX];
-        if (tile !== "potion" && tile !== "sword") {
+        if (tile !== "potion" && tile !== "sword" && !isOccupied) {
           enemy.x = newX;
           enemy.y = newY;
           break;
         }
       }
     }
-  });
+  }
 };
 
 Game.prototype.isCellFree = function (x, y, ignoreEnemies = false) {
